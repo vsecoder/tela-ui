@@ -16,6 +16,20 @@ export interface RatingProps {
 
 const SIZES = { s: 16, m: 24, l: 32 };
 
+/**
+ * Interactive star rating with spring-animated hover and press feedback.
+ * Supports half-star display for non-integer `value` (e.g. from an average).
+ * Set `readonly` to display-only mode; set `onChange` to make it interactive.
+ *
+ * ```tsx
+ * const [rating, setRating] = useState(0);
+ *
+ * <Rating value={rating} onChange={setRating} />
+ *
+ * // Display-only average
+ * <Rating value={4.5} readonly size="s" />
+ * ```
+ */
 export const Rating: FC<RatingProps> = ({
   value = 0,
   onChange,

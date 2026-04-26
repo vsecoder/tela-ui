@@ -40,6 +40,26 @@ function calendarDays(year: number, month: number): (Date | null)[] {
   return cells;
 }
 
+/**
+ * Date picker that opens a bottom-sheet calendar modal.
+ * No external dependencies — pure React + CSS custom properties.
+ * Respects `min` / `max` bounds; highlights today and the selected date.
+ *
+ * ```tsx
+ * const [date, setDate] = useState<Date | null>(null);
+ *
+ * <List>
+ *   <Section header="Дата доставки">
+ *     <DatePicker
+ *       header=""
+ *       value={date}
+ *       onChange={setDate}
+ *       min={new Date()}
+ *     />
+ *   </Section>
+ * </List>
+ * ```
+ */
 export const DatePicker: FC<DatePickerProps> = ({
   value,
   onChange,

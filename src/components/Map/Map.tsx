@@ -36,6 +36,22 @@ function injectLeafletCss() {
   leafletCssInjected = true;
 }
 
+/**
+ * Interactive Leaflet map loaded via dynamic import — zero bundle impact
+ * until the component mounts. Leaflet CSS is injected automatically from
+ * unpkg on first render.
+ *
+ * Pass `static` to disable all pan/zoom interactions (e.g. for a location preview).
+ * Extra pins can be passed via `markers`.
+ *
+ * ```tsx
+ * // Pickup point preview
+ * <Map lat={55.7539} lon={37.6208} popup="Садовая, 12" height={240} />
+ *
+ * // Static thumbnail
+ * <Map lat={55.7539} lon={37.6208} height={160} static />
+ * ```
+ */
 export const Map: FC<MapProps> = ({
   lat,
   lon,

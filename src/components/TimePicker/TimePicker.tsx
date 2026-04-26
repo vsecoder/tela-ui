@@ -41,6 +41,21 @@ function useWheel(items: string[], initial: number) {
   return { ref, index, onScroll };
 }
 
+/**
+ * iOS-style drum scroll time picker. Opens a bottom-sheet with two
+ * CSS scroll-snap columns (hours / minutes). The value is committed
+ * only when the user taps "Готово".
+ *
+ * ```tsx
+ * const [time, setTime] = useState<string | undefined>(undefined);
+ *
+ * <List>
+ *   <Section header="Время самовывоза">
+ *     <TimePicker header="" value={time} onChange={setTime} step={15} />
+ *   </Section>
+ * </List>
+ * ```
+ */
 export const TimePicker: FC<TimePickerProps> = ({
   value,
   onChange,
