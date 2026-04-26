@@ -130,3 +130,11 @@ export type {
   CardActionsProps,
 } from './Card';
 export { Form, useFormValues } from './Form';
+export { Rating } from './Rating';
+export type { RatingProps } from './Rating';
+export { DatePicker } from './DatePicker';
+export type { DatePickerProps } from './DatePicker';
+export { TimePicker } from './TimePicker';
+export type { TimePickerProps } from './TimePicker';
+export { Map } from './Map';
+export type { MapProps, MapMarker } from './Map';
