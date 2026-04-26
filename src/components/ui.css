@@ -4022,11 +4022,57 @@ img.ui-avatar {
 .ui-timepicker-sheet__action { }
 
 /* ---- Map ----------------------------------------------------------------- */
-.ui-map {
+.ui-map-wrap {
+  position: relative;
   width: 100%;
-  display: block;
-  border-radius: 0;
   overflow: hidden;
 }
 
+/* Break out of parent 16px horizontal padding (Section / Inset). */
+.ui-map-wrap--full {
+  margin-left: -16px;
+  margin-right: -16px;
+  width: calc(100% + 32px);
+}
+
+.ui-map {
+  width: 100%;
+  display: block;
+}
+
 .ui-map--static { cursor: default; }
+
+/* Fullscreen toggle button */
+.ui-map__fullscreen {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 500;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-border);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ui-text);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.18);
+  transition: opacity 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ui-map__fullscreen:hover { opacity: 0.8; }
+
+/* In fullscreen, both wrapper and map fill the viewport */
+.ui-map-wrap:fullscreen,
+.ui-map-wrap:-webkit-full-screen {
+  width: 100vw !important;
+  height: 100vh !important;
+}
+.ui-map-wrap:fullscreen .ui-map,
+.ui-map-wrap:-webkit-full-screen .ui-map {
+  width: 100% !important;
+  height: 100% !important;
+}

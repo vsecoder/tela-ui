@@ -1,6 +1,5 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { FC } from 'react';
-import type { Map as LeafletMap } from 'leaflet';
 import { cn } from '../cn';
 
 export interface MapMarker {
@@ -15,112 +14,181 @@ export interface MapProps {
   zoom?: number;
   /** Extra markers in addition to the center pin. */
   markers?: MapMarker[];
-  /** Popup text for the center marker. Omit to show no popup. */
+  /** Popup text for the center marker. */
   popup?: string;
   /** Map height in px. Default: `240` */
   height?: number;
   /** Disable pan/zoom interactions. */
   static?: boolean;
+  /**
+   * Break out of parent horizontal padding (adds `margin: 0 -16px`).
+   * Use instead of wrapping in `<Inset>`.
+   */
+  full?: boolean;
   className?: string;
 }
 
-let leafletCssInjected = false;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type YMaps = any;
 
-function injectLeafletCss() {
-  if (leafletCssInjected || document.querySelector('#leaflet-css')) return;
-  const link = document.createElement('link');
-  link.id   = 'leaflet-css';
-  link.rel  = 'stylesheet';
-  link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-  document.head.appendChild(link);
-  leafletCssInjected = true;
+declare global {
+  interface Window { ymaps?: YMaps }
 }
 
-/**
- * Interactive Leaflet map loaded via dynamic import — zero bundle impact
- * until the component mounts. Leaflet CSS is injected automatically from
- * unpkg on first render.
- *
- * Pass `static` to disable all pan/zoom interactions (e.g. for a location preview).
- * Extra pins can be passed via `markers`.
- *
- * ```tsx
- * // Pickup point preview
- * <Map lat={55.7539} lon={37.6208} popup="Садовая, 12" height={240} />
- *
- * // Static thumbnail
- * <Map lat={55.7539} lon={37.6208} height={160} static />
- * ```
- */
+let scriptPromise: Promise<void> | null = null;
+
+function loadYmaps(): Promise<void> {
+  if (scriptPromise) return scriptPromise;
+
+  scriptPromise = new Promise<void>((resolve, reject) => {
+    const s = document.createElement('script');
+    s.id = 'ymaps-api';
+    s.src = 'https://api-maps.yandex.ru/2.1/?lang=ru_RU';
+    s.onload  = () => resolve();
+    s.onerror = () => reject(new Error('Failed to load Yandex Maps'));
+    document.head.appendChild(s);
+  });
+
+  return scriptPromise;
+}
+
+function getTheme(): 'light' | 'dark' {
+  return document.documentElement.getAttribute('data-appearance') === 'dark'
+    ? 'dark'
+    : 'light';
+}
+
+const DARK_FILTER = 'invert(90%) hue-rotate(180deg) brightness(0.85) contrast(1.1)';
+
+function applyThemeFilter(map: YMaps, theme: string) {
+  try {
+    const el: HTMLElement = map.panes.get('tiles').getElement();
+    el.style.filter = theme === 'dark' ? DARK_FILTER : '';
+  } catch {
+    // pane may not be ready yet
+  }
+}
+
 export const Map: FC<MapProps> = ({
-  lat,
-  lon,
-  zoom = 15,
-  markers = [],
-  popup,
-  height = 240,
-  static: isStatic = false,
-  className,
+  lat, lon, zoom = 15, markers = [], popup,
+  height = 240, static: isStatic = false, full = false, className,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef       = useRef<LeafletMap | null>(null);
+  const wrapRef      = useRef<HTMLDivElement>(null);
+  const mapRef       = useRef<YMaps | null>(null);
+  const [theme, setTheme]           = useState<string>(getTheme);
+  const [isFullscreen, setFullscreen] = useState(false);
 
+  // Watch data-appearance for live theme switching.
   useEffect(() => {
-    if (!containerRef.current || mapRef.current) return;
+    const observer = new MutationObserver(() => {
+      const next = getTheme();
+      setTheme(prev => (prev !== next ? next : prev));
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-appearance'],
+    });
+    return () => observer.disconnect();
+  }, []);
 
-    injectLeafletCss();
+  // Apply CSS filter when theme changes after map is ready.
+  useEffect(() => {
+    if (mapRef.current) applyThemeFilter(mapRef.current, theme);
+  }, [theme]);
 
-    import('leaflet').then((L) => {
-      if (!containerRef.current || mapRef.current) return;
+  // Init map once on mount.
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
 
-      // Fix default icon path broken by bundlers
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      delete (L.Icon.Default.prototype as any)._getIconUrl;
-      L.Icon.Default.mergeOptions({
-        iconUrl:       'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-        iconRetinaUrl:'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-        shadowUrl:     'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+    loadYmaps().then(() => {
+      if (!el || !window.ymaps || mapRef.current) return;
+
+      window.ymaps.ready(() => {
+        if (!el || mapRef.current) return;
+
+        const map = new window.ymaps.Map(el, {
+          center: [lat, lon],
+          zoom,
+          controls: isStatic ? [] : ['zoomControl'],
+        }, { suppressMapOpenBlock: true });
+
+        if (isStatic) {
+          map.behaviors.disable(['drag', 'scrollZoom', 'dblClickZoom', 'multiTouch']);
+        }
+
+        const center = new window.ymaps.Placemark(
+          [lat, lon],
+          { balloonContent: popup ?? '' },
+          { preset: 'islands#accentCircleDotIcon', iconColor: '#2481cc' },
+        );
+        map.geoObjects.add(center);
+        if (popup) center.balloon.open();
+
+        markers.forEach(({ lat: mlat, lon: mlon, popup: mp }) => {
+          map.geoObjects.add(new window.ymaps.Placemark(
+            [mlat, mlon],
+            { balloonContent: mp ?? '' },
+            { preset: 'islands#circleDotIcon' },
+          ));
+        });
+
+        applyThemeFilter(map, getTheme());
+        mapRef.current = map;
       });
-
-      const map = L.map(containerRef.current, {
-        zoomControl:       !isStatic,
-        dragging:          !isStatic,
-        scrollWheelZoom:   !isStatic,
-        doubleClickZoom:   !isStatic,
-        touchZoom:         !isStatic,
-        keyboard:          !isStatic,
-        attributionControl: true,
-      }).setView([lat, lon], zoom);
-
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 19,
-      }).addTo(map);
-
-      const center = L.marker([lat, lon]).addTo(map);
-      if (popup) center.bindPopup(popup).openPopup();
-
-      markers.forEach(({ lat: mlat, lon: mlon, popup: mp }) => {
-        const m = L.marker([mlat, mlon]).addTo(map);
-        if (mp) m.bindPopup(mp);
-      });
-
-      mapRef.current = map;
     });
 
     return () => {
-      mapRef.current?.remove();
+      mapRef.current?.destroy();
       mapRef.current = null;
     };
-    // intentionally only run once on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Fullscreen tracking.
+  useEffect(() => {
+    const onFsChange = () => {
+      setFullscreen(!!document.fullscreenElement);
+      requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
+    };
+    document.addEventListener('fullscreenchange', onFsChange);
+    return () => document.removeEventListener('fullscreenchange', onFsChange);
+  }, []);
+
+  const handleFullscreen = () => {
+    const el = wrapRef.current;
+    if (!el) return;
+    if (!document.fullscreenElement) {
+      el.requestFullscreen?.();
+    } else {
+      document.exitFullscreen?.();
+    }
+  };
+
   return (
-    <div
-      ref={containerRef}
-      className={cn('ui-map', isStatic && 'ui-map--static', className)}
-      style={{ height }}
-    />
+    <div ref={wrapRef} className={cn('ui-map-wrap', full && 'ui-map-wrap--full', className)}>
+      <div
+        ref={containerRef}
+        className={cn('ui-map', isStatic && 'ui-map--static')}
+        style={{ height: isFullscreen ? '100%' : height }}
+      />
+      <button
+        type="button"
+        className="ui-map__fullscreen"
+        onClick={handleFullscreen}
+        aria-label={isFullscreen ? 'Закрыть' : 'На весь экран'}
+      >
+        {isFullscreen ? (
+          <svg width={16} height={16} viewBox="0 0 16 16" fill="none" aria-hidden>
+            <path d="M2 2l12 12M14 2 2 14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+          </svg>
+        ) : (
+          <svg width={16} height={16} viewBox="0 0 16 16" fill="none" aria-hidden>
+            <path d="M2 5.5V3a1 1 0 0 1 1-1h2.5M10.5 2H13a1 1 0 0 1 1 1v2.5M14 10.5V13a1 1 0 0 1-1 1h-2.5M5.5 14H3a1 1 0 0 1-1-1v-2.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          </svg>
+        )}
+      </button>
+    </div>
   );
 };

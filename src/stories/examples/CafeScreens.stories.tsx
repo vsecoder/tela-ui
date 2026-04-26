@@ -343,7 +343,7 @@ export const CafeCheckout: Story = {
                   Садовая, 12
                 </Cell>
                 <Inset top={0} bottom={0}>
-                  <Map lat={55.7412} lon={37.6156} zoom={15} height={180} popup="Кофейня «Садовая, 12»" static />
+                  <Map lat={55.7412} lon={37.6156} zoom={15} height={180} popup="Кофейня «Садовая, 12»" static full />
                 </Inset>
               </>
             ) : (

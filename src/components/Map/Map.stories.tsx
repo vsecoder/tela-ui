@@ -21,7 +21,7 @@ export const Default: Story = {
     <List>
       <Section header="Точка самовывоза">
         <Inset top={0} bottom={0}>
-          <Map lat={LAT} lon={LON} popup="Кофейня на Красной площади" height={260} />
+          <Map lat={LAT} lon={LON} popup="Кофейня на Красной площади" height={260} full />
         </Inset>
       </Section>
     </List>
@@ -33,7 +33,7 @@ export const Static: Story = {
     <List>
       <Section header="Адрес доставки">
         <Inset top={0} bottom={0}>
-          <Map lat={LAT} lon={LON} zoom={14} height={200} static popup="Москва, Садовая, 12" />
+          <Map lat={LAT} lon={LON} zoom={14} height={200} static popup="Москва, Садовая, 12" full />
         </Inset>
       </Section>
     </List>
