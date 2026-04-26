@@ -25,6 +25,9 @@ import { ProgressBar }  from '../../components/ProgressBar/ProgressBar';
 import { Timeline }     from '../../components/Timeline/Timeline';
 import { Divider }      from '../../components/Divider/Divider';
 import { Modal }        from '../../components/Modal/Modal';
+import { Rating }       from '../../components/Rating/Rating';
+import { Map }          from '../../components/Map/Map';
+import { TimePicker }   from '../../components/TimePicker/TimePicker';
 import { FadeIn }       from '../../components/motion/FadeIn';
 import { Stagger }      from '../../components/motion/Stagger';
 import {
@@ -226,10 +229,8 @@ export const CafeItemDetail: Story = {
         <Inset top={16} bottom={4}>
           <TypographyTitle mb={4}>Латте</TypographyTitle>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <StarFill width={13} height={13} style={{ color: '#f59e0b' }} />
-              <TypographyLabel color="secondary">4.9 · 280 отзывов</TypographyLabel>
-            </div>
+            <Rating value={4.9} readonly size="s" />
+            <TypographyLabel color="secondary">4.9 · 280 отзывов</TypographyLabel>
             <Badge variant="neutral" size="s">180 ккал</Badge>
           </div>
         </Inset>
@@ -290,11 +291,12 @@ export const CafeItemDetail: Story = {
 export const CafeCheckout: Story = {
   name: 'Checkout',
   render: () => {
-    const [nav,      setNav]      = useState('cart');
-    const [mode,     setMode]     = useState<'pickup' | 'delivery'>('pickup');
-    const [address,  setAddress]  = useState('');
-    const [time,     setTime]     = useState('asap');
-    const [payment,  setPayment]  = useState('card');
+    const [nav,           setNav]           = useState('cart');
+    const [mode,          setMode]          = useState<'pickup' | 'delivery'>('pickup');
+    const [address,       setAddress]       = useState('');
+    const [scheduleTime,  setScheduleTime]  = useState(false);
+    const [scheduledTime, setScheduledTime] = useState<string | undefined>(undefined);
+    const [payment,       setPayment]       = useState('card');
     const [comment,  setComment]  = useState('');
     const [done,     setDone]     = useState(false);
 
@@ -336,9 +338,14 @@ export const CafeCheckout: Story = {
           {/* Address */}
           <Section header={mode === 'pickup' ? 'Точка самовывоза' : 'Адрес доставки'}>
             {mode === 'pickup' ? (
-              <Cell before={<MapPin width={18} height={18} />} after={<ChevronRight width={16} height={16} />} onClick={() => {}}>
-                Садовая, 12
-              </Cell>
+              <>
+                <Cell before={<MapPin width={18} height={18} />} after={<ChevronRight width={16} height={16} />} onClick={() => {}}>
+                  Садовая, 12
+                </Cell>
+                <Inset top={0} bottom={0}>
+                  <Map lat={55.7412} lon={37.6156} zoom={15} height={180} popup="Кофейня «Садовая, 12»" static />
+                </Inset>
+              </>
             ) : (
               <Input
                 header=""
@@ -352,18 +359,25 @@ export const CafeCheckout: Story = {
 
           {/* Time */}
           <Section header="Время">
-            <Select
-              header=""
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              options={[
-                { value: 'asap', label: 'Как можно скорее (~12 мин)' },
-                { value: '1300', label: '13:00' },
-                { value: '1330', label: '13:30' },
-                { value: '1400', label: '14:00' },
-                { value: '1500', label: '15:00' },
-              ]}
-            />
+            <Cell
+              after={
+                <Switch
+                  checked={scheduleTime}
+                  onChange={(e) => { setScheduleTime(e.target.checked); if (!e.target.checked) setScheduledTime(undefined); }}
+                />
+              }
+            >
+              Запланировать время
+            </Cell>
+            {scheduleTime && (
+              <TimePicker
+                header=""
+                value={scheduledTime}
+                onChange={setScheduledTime}
+                step={15}
+                placeholder="Выберите время"
+              />
+            )}
           </Section>
 
           {/* Payment */}
@@ -485,6 +499,7 @@ export const CafeOrders: Story = {
     const [nav,       setNav]       = useState('orders');
     const [tab,       setTab]       = useState<'active' | 'history'>('active');
     const [openOrder, setOpenOrder] = useState<Order | null>(null);
+    const [ratings,   setRatings]   = useState<Record<string, number>>({});
 
     return (
       <Shell nav={nav} onNav={setNav}>
@@ -609,6 +624,19 @@ export const CafeOrders: Story = {
                 <TypographyLabel color="secondary">Начислено бонусов</TypographyLabel>
                 <Badge variant="accent" size="s">+{openOrder.bonus} баллов</Badge>
               </div>
+
+              {openOrder.status === 'done' && (
+                <>
+                  <Divider />
+                  <div style={{ marginTop: 12 }}>
+                    <TypographyLabel color="secondary" mb={8} style={{ display: 'block' }}>Оцените заказ</TypographyLabel>
+                    <Rating
+                      value={ratings[openOrder.id] ?? 0}
+                      onChange={(v) => setRatings((prev) => ({ ...prev, [openOrder.id]: v }))}
+                    />
+                  </div>
+                </>
+              )}
             </Inset>
           )}
         </Modal>

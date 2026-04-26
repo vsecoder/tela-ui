@@ -8,7 +8,7 @@ import { Inset } from '../Inset/Inset';
 import { TypographyLabel } from '../Typography/Typography';
 
 const meta: Meta<typeof Rating> = {
-  title: 'Components/Rating',
+  title: 'UI/Rating',
   component: Rating,
 };
 export default meta;

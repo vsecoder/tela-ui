@@ -141,7 +141,7 @@ export const Integration: StoryObj = {
         <Section header="Step 1 — import CSS">
           <Cell>
             <div style={{ fontFamily: 'ui-monospace, monospace', fontSize: 12, color: 'var(--ui-text)', background: 'var(--ui-bg)', padding: '12px 14px', borderRadius: 'var(--ui-radius-sm)', margin: '4px 0' }}>
-              {`import '@tela/ui/ui.css';`}
+              {`import '@vsecoder/tela-ui/ui.css';`}
             </div>
           </Cell>
         </Section>
@@ -157,7 +157,7 @@ export const Integration: StoryObj = {
         <Section header="Step 3 — wrap your app">
           <Cell>
             <div style={{ fontFamily: 'ui-monospace, monospace', fontSize: 12, color: 'var(--ui-text)', background: 'var(--ui-bg)', padding: '12px 14px', borderRadius: 'var(--ui-radius-sm)', margin: '4px 0', whiteSpace: 'pre' }}>
-              {`import { AppRoot } from '@tela/ui';\n\n<AppRoot appearance={colorScheme}>\n  {/* your app */}\n</AppRoot>`}
+              {`import { AppRoot } from '@vsecoder/tela-ui';\n\n<AppRoot appearance={colorScheme}>\n  {/* your app */}\n</AppRoot>`}
             </div>
           </Cell>
         </Section>
@@ -165,7 +165,7 @@ export const Integration: StoryObj = {
         <Section header="Step 4 (optional) — custom theme">
           <Cell>
             <div style={{ fontFamily: 'ui-monospace, monospace', fontSize: 12, color: 'var(--ui-text)', background: 'var(--ui-bg)', padding: '12px 14px', borderRadius: 'var(--ui-radius-sm)', margin: '4px 0', whiteSpace: 'pre' }}>
-              {`import { createTheme } from '@tela/ui/tokens';\n\nconst theme = createTheme({\n  colors: { accent: '#7c3aed' },\n  radii:  { radius: '16px' },\n});\n\ndocument.head.insertAdjacentHTML(\n  'beforeend',\n  \`<style>\${theme.styleContent}</style>\`,\n);`}
+              {`import { createTheme } from '@vsecoder/tela-ui/tokens';\n\nconst theme = createTheme({\n  colors: { accent: '#7c3aed' },\n  radii:  { radius: '16px' },\n});\n\ndocument.head.insertAdjacentHTML(\n  'beforeend',\n  \`<style>\${theme.styleContent}</style>\`,\n);`}
             </div>
           </Cell>
         </Section>

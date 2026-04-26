@@ -64,7 +64,7 @@ function Overview() {
 
       {/* Header */}
       <div style={{ marginBottom: 32 }}>
-        <TypographyOverline mb={8}>@tela/ui · Component Library</TypographyOverline>
+        <TypographyOverline mb={8}>@vsecoder/tela-ui · Component Library</TypographyOverline>
         <TypographyDisplay size={36} mb={12}>Tela UI</TypographyDisplay>
         <TypographyBody size={16} color="secondary" maxWidth={560}>
           Библиотека компонентов для Telegram Mini Apps. Построена на Telegram-токенах,
@@ -98,9 +98,9 @@ function Overview() {
       {/* Quick start */}
       <section style={{ marginBottom: 40 }}>
         <TypographyTitle mb={16}>Быстрый старт</TypographyTitle>
-        <CodeBlock lang="bash" code={`npm install @tela/ui\n\n# или при локальной разработке\nnpm link @tela/ui`} />
+        <CodeBlock lang="bash" code={`npm install @vsecoder/tela-ui\n\n# или при локальной разработке\nnpm link @vsecoder/tela-ui`} />
         <div style={{ marginTop: 12 }}>
-          <CodeBlock lang="tsx" code={`import '@tela/ui/dist/ui.css';\nimport { AppRoot, List, Section, Cell } from '@tela/ui';\n\nexport function App() {\n  return (\n    <AppRoot>\n      <List>\n        <Section header="Хосты">\n          <Cell subtitle="eu-west-1">prod-01</Cell>\n        </Section>\n      </List>\n    </AppRoot>\n  );\n}`} />
+          <CodeBlock lang="tsx" code={`import '@vsecoder/tela-ui/dist/ui.css';\nimport { AppRoot, List, Section, Cell } from '@vsecoder/tela-ui';\n\nexport function App() {\n  return (\n    <AppRoot>\n      <List>\n        <Section header="Хосты">\n          <Cell subtitle="eu-west-1">prod-01</Cell>\n        </Section>\n      </List>\n    </AppRoot>\n  );\n}`} />
         </div>
       </section>
 
@@ -112,7 +112,7 @@ function Overview() {
           <code style={{ background: 'var(--ui-border)', padding: '1px 5px', borderRadius: 4, fontSize: 13 }}>--tg-theme-*</code>{' '}
           CSS-переменных. При запуске в TMA вызовите <code style={{ background: 'var(--ui-border)', padding: '1px 5px', borderRadius: 4, fontSize: 13 }}>bindCssVars()</code> один раз в <code style={{ background: 'var(--ui-border)', padding: '1px 5px', borderRadius: 4, fontSize: 13 }}>init.ts</code>:
         </TypographyBody>
-        <CodeBlock lang="ts" code={`import { themeParams, retrieveLaunchParams } from '@tma.js/sdk';\nimport { createTheme } from '@tela/ui';\n\n// Bind Telegram theme vars -- --tg-theme-* CSS vars\nconst { tgWebAppThemeParams } = retrieveLaunchParams();\nthemeParams.bindCssVars();\n\n// Optional: override accent or radius\nconst theme = createTheme({ colors: { accent: '#7c3aed' } });\ndocument.head.insertAdjacentHTML('beforeend', \`<style>\${theme.lightCss}</style>\`);`} />
+        <CodeBlock lang="ts" code={`import { themeParams, retrieveLaunchParams } from '@tma.js/sdk';\nimport { createTheme } from '@vsecoder/tela-ui';\n\n// Bind Telegram theme vars -- --tg-theme-* CSS vars\nconst { tgWebAppThemeParams } = retrieveLaunchParams();\nthemeParams.bindCssVars();\n\n// Optional: override accent or radius\nconst theme = createTheme({ colors: { accent: '#7c3aed' } });\ndocument.head.insertAdjacentHTML('beforeend', \`<style>\${theme.lightCss}</style>\`);`} />
       </section>
 
       {/* Component list */}

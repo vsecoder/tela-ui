@@ -149,7 +149,7 @@ export const TypographyAction   = make('action',   'span');
  * Used above page titles as a category label or brand marker.
  *
  * ```tsx
- * <TypographyOverline mb={8}>@tela/ui · Component Library</TypographyOverline>
+ * <TypographyOverline mb={8}>@vsecoder/tela-ui · Component Library</TypographyOverline>
  * <TypographyDisplay>Tela UI</TypographyDisplay>
  * ```
  */

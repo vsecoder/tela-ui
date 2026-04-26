@@ -5,7 +5,7 @@ import { Section } from '../Section/Section';
 import { Inset } from '../Inset/Inset';
 
 const meta: Meta<typeof Map> = {
-  title: 'Components/Map',
+  title: 'UI/Map',
   component: Map,
   parameters: { layout: 'fullscreen' },
 };

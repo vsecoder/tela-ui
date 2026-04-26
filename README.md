@@ -2,6 +2,8 @@
 
 A component library for Telegram Mini Apps built with React, Motion, and CSS custom properties. Follows Telegram's visual language — adaptive to the user's theme (light/dark) via `--tg-theme-*` variables.
 
+![Tela UI preview](.github/telaui.webp)
+
 ## Components
 
 | Category | Components |

@@ -5,7 +5,7 @@ import { List } from '../List/List';
 import { Section } from '../Section/Section';
 
 const meta: Meta<typeof TimePicker> = {
-  title: 'Components/TimePicker',
+  title: 'UI/TimePicker',
   component: TimePicker,
   parameters: { layout: 'fullscreen' },
 };

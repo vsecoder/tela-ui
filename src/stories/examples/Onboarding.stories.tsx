@@ -6,6 +6,8 @@ import { Stepper }      from '../../components/Stepper/Stepper';
 import { Button }       from '../../components/Button/Button';
 import { Input }        from '../../components/Input/Input';
 import { Select }       from '../../components/Select/Select';
+import { DatePicker }   from '../../components/DatePicker/DatePicker';
+import { TimePicker }   from '../../components/TimePicker/TimePicker';
 import { Inset }        from '../../components/Inset/Inset';
 import { Stagger }      from '../../components/motion/Stagger';
 import { FadeIn }       from '../../components/motion/FadeIn';
@@ -57,17 +59,8 @@ function validateTelegram(v: string): string {
   return '';
 }
 
-function validateDate(v: string): string {
-  if (!v.trim()) return 'Укажите дату';
-  const m = v.trim().match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
-  if (!m) return 'Формат: ДД.ММ.ГГГГ';
-  const [, d, mo, y] = m;
-  const entered = new Date(Number(y), Number(mo) - 1, Number(d));
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  if (Number.isNaN(entered.getTime())) return 'Некорректная дата';
-  if (entered < today) return 'Дата не может быть в прошлом';
-  return '';
+function formatDate(d: Date): string {
+  return d.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
 // ---- Story source snippet (shown in the <> drawer) -------------------------
@@ -77,8 +70,8 @@ const SOURCE = `export const MeetingSetup = () => {
   const [name, setName] = useState('');
   const [telegram, setTelegram] = useState('');
   const [format, setFormat] = useState('');
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
+  const [date, setDate] = useState<Date | null>(null);
+  const [time, setTime] = useState<string | undefined>(undefined);
   const [topic, setTopic] = useState('');
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [done, setDone] = useState(false);
@@ -89,18 +82,17 @@ const SOURCE = `export const MeetingSetup = () => {
   const errors = {
     name:     validateName(name),
     telegram: validateTelegram(telegram),
-    date:     validateDate(date),
+    date:     date ? '' : 'Укажите дату',
   };
 
   const handleNext = () => {
-    // Mark step fields as touched so errors become visible
     if (step === 0) {
       setTouched((t) => ({ ...t, name: true, telegram: true }));
       if (errors.name || errors.telegram) return;
     }
     if (step === 1) {
-      setTouched((t) => ({ ...t, date: true }));
-      if (!format || errors.date || !time) return;
+      touchAll(['date']);
+      if (!format || !date || !time) return;
     }
     step < STEPS.length - 1 ? setStep(step + 1) : setDone(true);
   };
@@ -143,21 +135,19 @@ const SOURCE = `export const MeetingSetup = () => {
               { value: 'video', label: 'Видеозвонок' },
               { value: 'voice', label: 'Голосовой звонок' },
             ]} />
-          <Input
+          <DatePicker
             header="Дата"
-            placeholder="05.05.2026"
             value={date}
-            onChange={(e) => setDate(e.target.value)}
-            onBlur={() => touch('date')}
-            error={touched.date ? errors.date : undefined}
+            onChange={(d) => { setDate(d); touch('date'); }}
+            min={new Date()}
           />
-          <Select header="Время" value={time}
-            onChange={(e) => setTime(e.target.value)}
-            options={[
-              { value: '', label: '— Выберите —' },
-              { value: '10:00', label: '10:00' },
-              { value: '11:00', label: '11:00' },
-            ]} />
+          <TimePicker
+            header="Время"
+            value={time}
+            onChange={setTime}
+            step={30}
+            placeholder="— Выберите —"
+          />
         </>
       )}
 
@@ -196,8 +186,8 @@ export const MeetingSetup: Story = {
     const [name,     setName]     = useState('');
     const [telegram, setTelegram] = useState('');
     const [format,   setFormat]   = useState('');
-    const [date,     setDate]     = useState('');
-    const [time,     setTime]     = useState('');
+    const [date,     setDate]     = useState<Date | null>(null);
+    const [time,     setTime]     = useState<string | undefined>(undefined);
     const [topic,    setTopic]    = useState('');
 
     // touched tracks which fields have been blurred or had a submit attempt
@@ -215,7 +205,7 @@ export const MeetingSetup: Story = {
     const errors = {
       name:     validateName(name),
       telegram: validateTelegram(telegram),
-      date:     validateDate(date),
+      date:     date ? '' : 'Укажите дату',
     };
 
     const dir = step > prevStep ? 1 : -1;
@@ -232,7 +222,7 @@ export const MeetingSetup: Story = {
       }
       if (step === 1) {
         touchAll(['date']);
-        if (!format || errors.date || !time) return;
+        if (!format || !date || !time) return;
       }
       if (step < STEPS.length - 1) {
         go(step + 1);
@@ -257,7 +247,7 @@ export const MeetingSetup: Story = {
           </FadeIn>
           <FadeIn from="up" delay={0.32}>
             <div style={{ fontSize: 14, color: 'var(--ui-text-sub)', lineHeight: 1.6, marginBottom: 32 }}>
-              Встреча «{topic || 'без темы'}» запланирована на {date} в {time}.<br />
+              Встреча «{topic || 'без темы'}» запланирована на {date ? formatDate(date) : ''} в {time}.<br />
               Подтверждение придёт в Telegram.
             </div>
           </FadeIn>
@@ -265,7 +255,7 @@ export const MeetingSetup: Story = {
             <Button size="l" stretched onClick={() => {
               setDone(false); setStep(0); setPrevStep(0);
               setName(''); setTelegram(''); setFormat('');
-              setDate(''); setTime(''); setTopic('');
+              setDate(null); setTime(undefined); setTopic('');
               setTouched({});
             }}>
               Записаться ещё раз
@@ -351,27 +341,18 @@ export const MeetingSetup: Story = {
                       { value: 'office', label: 'Офис (Москва)' },
                     ]}
                   />
-                  <Input
+                  <DatePicker
                     header="Дата"
-                    placeholder="05.05.2026"
                     value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    onBlur={() => touch('date')}
-                    error={touched.date ? errors.date : undefined}
+                    onChange={(d) => { setDate(d); touch('date'); }}
+                    min={new Date()}
                   />
-                  <Select
+                  <TimePicker
                     header="Время"
                     value={time}
-                    onChange={(e) => setTime(e.target.value)}
-                    options={[
-                      { value: '',      label: '— Выберите —' },
-                      { value: '10:00', label: '10:00' },
-                      { value: '11:00', label: '11:00' },
-                      { value: '12:00', label: '12:00' },
-                      { value: '14:00', label: '14:00' },
-                      { value: '15:00', label: '15:00' },
-                      { value: '16:00', label: '16:00' },
-                    ]}
+                    onChange={setTime}
+                    step={30}
+                    placeholder="— Выберите —"
                   />
                   <Input
                     header="Тема (необязательно)"

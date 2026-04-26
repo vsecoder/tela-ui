@@ -130,7 +130,7 @@ export const CustomViolet: StoryObj = {
       description: {
         story: `Пример кастомной темы с фиолетовым акцентом и увеличенными радиусами:
 \`\`\`ts
-import { createTheme } from '@tela/ui/tokens';
+import { createTheme } from '@vsecoder/tela-ui/tokens';
 
 const theme = createTheme({
   colors: { accent: '#7c3aed', accentFg: '#ffffff', link: '#7c3aed' },

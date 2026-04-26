@@ -5,7 +5,7 @@ import { List } from '../List/List';
 import { Section } from '../Section/Section';
 
 const meta: Meta<typeof DatePicker> = {
-  title: 'Components/DatePicker',
+  title: 'UI/DatePicker',
   component: DatePicker,
   parameters: { layout: 'fullscreen' },
 };
