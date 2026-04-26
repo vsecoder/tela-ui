@@ -1,5 +1,5 @@
 {
-  "name": "@tela/ui",
+  "name": "@vsecoder/tela-ui",
   "version": "1.0.0",
   "type": "module",
   "description": "Tela UI — Telegram Mini App component library with configurable design tokens",

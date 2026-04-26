@@ -32,12 +32,12 @@ Internal `--ui-*` aliases are derived from these tokens, so you can also overrid
 ## Quick start
 
 ```bash
-npm install @tela/ui
+npm install @vsecoder/tela-ui
 ```
 
 ```tsx
-import { Button, Cell, List, Section } from '@tela/ui';
-import '@tela/ui/ui.css';
+import { Button, Cell, List, Section } from '@vsecoder/tela-ui';
+import '@vsecoder/tela-ui/ui.css';
 
 export function App() {
   return (
