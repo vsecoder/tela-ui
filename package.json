@@ -1,0 +1,47 @@
+{
+  "name": "@tela/ui",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Tela UI — Telegram Mini App component library with configurable design tokens",
+  "scripts": {
+    "storybook": "storybook dev -p 6007",
+    "build-storybook": "storybook build",
+    "build": "tsup && cp src/components/ui.css dist/ui.css",
+    "typecheck": "tsc --noEmit"
+  },
+  "main":    "./dist/index.cjs",
+  "module":  "./dist/index.js",
+  "types":   "./dist/index.d.ts",
+  "exports": {
+    ".":       { "import": "./dist/index.js", "require": "./dist/index.cjs" },
+    "./ui.css": "./dist/ui.css"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.2.8",
+    "@number-flow/react": "^0.6.0",
+    "@uiw/react-md-editor": "^4.1.0",
+    "boneyard-js": "^1.8.1",
+    "chart.js": "^4.5.1",
+    "motion": "^12.38.0",
+    "react": "^18.3.1",
+    "react-chartjs-2": "^5.3.1",
+    "react-dom": "^18.3.1",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "shiki": "^4.0.2"
+  },
+  "devDependencies": {
+    "@gravity-ui/icons": "^2.16.0",
+    "@storybook/addon-essentials": "^8.6.14",
+    "@storybook/react-vite": "^8.6.18",
+    "@types/node": "^20.19.11",
+    "@types/react": "^18.3.24",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react-swc": "^3.11.0",
+    "storybook": "^8.6.18",
+    "typescript": "^5.9.2",
+    "vite": "^6.3.5",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
+}
